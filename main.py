@@ -53,6 +53,9 @@ def ocr_image(img):
     text = ''.join([c for c in text if c in WHITELIST])
     return text
 
+# Contador de imágenes procesadas
+counter = 1
+
 # Procesar todas las imágenes
 for filename in os.listdir(IMAGE_FOLDER):
     if filename.lower().endswith((".png", ".jpg", ".jpeg", ".bmp")):
@@ -65,17 +68,18 @@ for filename in os.listdir(IMAGE_FOLDER):
         processed_img = preprocess_image(img)
         text = ocr_image(processed_img)
         
-        if text == "":
-            # Si no se detecta ninguna letra, mover a carpeta de revisión
-            revision_path = os.path.join(REVISION_FOLDER, filename)
-            shutil.move(img_path, revision_path)
-            print(f"[REVISION] {filename} -> sin letras detectadas")
-            continue
-        
-        # Guardar texto en archivo .txt
+        # Guardar .txt aunque esté vacío
         txt_filename = os.path.splitext(filename)[0] + ".txt"
         txt_path = os.path.join(OUTPUT_FOLDER, txt_filename)
         with open(txt_path, "w", encoding="utf-8") as f:
             f.write(text)
         
-        print(f"[OK] Procesado {filename} -> '{text}'")
+        if text == "":
+            # Mover imagen a revisión
+            revision_path = os.path.join(REVISION_FOLDER, filename)
+            shutil.move(img_path, revision_path)
+            print(f"[{counter}] REVISION {filename} -> sin letras detectadas")
+        else:
+            print(f"[{counter}] OK Procesado {filename} -> '{text}'")
+        
+        counter += 1
