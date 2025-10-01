@@ -68,18 +68,18 @@ for filename in os.listdir(IMAGE_FOLDER):
         processed_img = preprocess_image(img)
         text = ocr_image(processed_img)
         
-        # Guardar .txt aunque esté vacío
-        txt_filename = os.path.splitext(filename)[0] + ".txt"
-        txt_path = os.path.join(OUTPUT_FOLDER, txt_filename)
-        with open(txt_path, "w", encoding="utf-8") as f:
-            f.write(text)
-        
         if text == "":
-            # Mover imagen a revisión
+            # Mover imagen a revisión sin crear .txt
             revision_path = os.path.join(REVISION_FOLDER, filename)
             shutil.move(img_path, revision_path)
             print(f"[{counter}] REVISION {filename} -> sin letras detectadas")
         else:
+            # Guardar texto solo si se detecta al menos un carácter
+            txt_filename = os.path.splitext(filename)[0] + ".txt"
+            txt_path = os.path.join(OUTPUT_FOLDER, txt_filename)
+            with open(txt_path, "w", encoding="utf-8") as f:
+                f.write(text)
+            
             print(f"[{counter}] OK Procesado {filename} -> '{text}'")
         
         counter += 1
